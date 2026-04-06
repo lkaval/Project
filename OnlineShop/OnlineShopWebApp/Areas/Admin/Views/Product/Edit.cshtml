@@ -1,0 +1,58 @@
+﻿@using OnlineShopWebApp.Data.Models
+@model Product
+
+<link rel="stylesheet" href="~/css/registration.css" />
+
+<form method="post" class="auth-form" asp-action="AddProduct" asp-controller="Admin" enctype="multipart/form-data">
+    <div class="text-danger font-weight-bold" asp-validation-summary="ModelOnly"></div>
+
+    <input type="hidden" name="Id" value="@Model?.Id"/>
+    
+    
+    <div class="form-header">
+        <h3 class="form-title">Изменение продукта</h3>
+        <p class="form-subtitle">Заполните все обязательные поля</p>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Name" class="form-label">Название товара *</label>
+        <div class="input-container">
+            <input asp-for="Name" value="@Model?.Name" class="form-control" placeholder="Введите название товара" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="form-label">Описание товара *</label>
+        <div class="input-container">
+            <textarea asp-for="Description" value="@Model?.Description" type="text-area " class="form-control" rows="3" placeholder="Подробно опишите товар"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Cost" class="form-label">Цена (руб) *</label>
+        <div class="input-container">
+            <input type="number" asp-for="Cost" value="@Model?.Cost" class="form-control" placeholder="0,00" step="0.01" min="0" />
+            <span asp-validation-for="Cost" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" 
+            asp-area="Admin"
+            asp-controller="Product" 
+            asp-action="Edit" class="btn btn-primary submit-btn">
+            <i class="fas fa-plus-circle"></i> Изменить товар
+        </button>
+        <a asp-area="Admin" 
+        asp-controller="Product" 
+        asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Вернуться к списку
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

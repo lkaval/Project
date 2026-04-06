@@ -1,0 +1,46 @@
+﻿@using OnlineShopWebApp.Data.Models
+@model UserDeliveryInfo
+<link rel="stylesheet" href="~/css/order.css" />
+
+<form method="post" class="order-form" asp-controller="Order" asp-action="Buy">
+    <div class="text-danger font-weight-bold" asp-validation-summary="ModelOnly"></div>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label"></label>
+                <div class="input-container">
+                    <input asp-for="Name" class="form-control" placeholder="Иванов Иван Иванович" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Phone" class="form-label"></label>
+                <div class="input-container">
+                    <input asp-for="Phone" class="form-control"
+                           type="tel"
+                           placeholder="79991234567"
+                           pattern="[0-9]{11}"
+                           title="Введите 11 цифр номера телефона без пробелов и других символов" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Address" class="form-label"></label>
+                <div class="input-container">
+                    <input asp-for="Address" class="form-control"
+                           placeholder="г. Москва, ул. Примерная, д. 1, кв. 1" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-actions mt-4">
+                <button type="submit" class="btn btn-success btn-lg w-100">
+                    Оформить заказ
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
