@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShopWebApp.Data.Models;
+using OnlineShopWebApp.Data.Repository.Users;
 
 namespace OnlineShopWebApp.Controllers
 {

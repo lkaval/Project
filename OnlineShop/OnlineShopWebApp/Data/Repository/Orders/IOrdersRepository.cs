@@ -6,7 +6,7 @@ namespace OnlineShopWebApp.Data.Repository.Orders
     {
         void Add(Order order);
         List<Order> GetAll();
-        Order TryGetById(Guid id);
+        Order? TryGetById(Guid id); // ← добавили ?
         void UpdateOrderStatus(Guid orderId, OrderStatus newStatus);
     }
 }

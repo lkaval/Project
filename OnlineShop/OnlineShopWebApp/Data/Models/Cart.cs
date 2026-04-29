@@ -3,22 +3,10 @@
     public class Cart
     {
         public Guid Id { get; set; }
-        public string UserId { get; set; }
-        public List<CartItem> Items { get; set; } = new List<CartItem>();
-        public decimal TotalAmount
-        {
-            get
-            {
-                return Items?.Sum(item => item.Amount) ?? 0;
-            }
-        }
-        public decimal Quantity
-        {
-            get
-            {
-                return Items?.Sum(item => item.Quantity) ?? 0;
-            }
-        }
-    }
+        public string UserId { get; set; } = string.Empty;
+        public List<CartItem> Items { get; set; } = new();
 
+        public decimal TotalAmount => Items?.Sum(i => i.Amount) ?? 0;
+        public decimal Quantity => Items?.Sum(i => i.Quantity) ?? 0;
+    }
 }

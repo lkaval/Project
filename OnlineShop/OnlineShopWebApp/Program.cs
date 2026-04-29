@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineShopWebApp.Data;
 using OnlineShopWebApp.Data.Models;
+using OnlineShopWebApp.Data.Repository.Users;
 using OnlineShopWebApp.Data.Repository.Carts;
 using OnlineShopWebApp.Data.Repository.Orders;
 using OnlineShopWebApp.Data.Repository.Products;
 using OnlineShopWebApp.Data.Repository.Roles;
-using OnlineShopWebApp.Data.Repository.UsersManager;
 using Serilog;
 namespace OnlineShopWebApp
 {
@@ -24,13 +24,13 @@ namespace OnlineShopWebApp
             builder.Services.AddRazorPages();
             // builder.Services.AddSingleton<IProductsRepository, ProductsInMemoryRepository>();
             builder.Services.AddDbContext<AppDbContext>(options =>
-     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-            builder.Services.AddScoped<IProductsRepository, ProductsEfRepository>();
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddSingleton<ICartsRepository, CartsInMemoryRepository>();
-            builder.Services.AddSingleton<IOrdersRepository, OrdersInMemoryRepository>();
-            builder.Services.AddSingleton<IRolesRepository, RolesInMemoryRepository>();
-            builder.Services.AddSingleton<IUsersManager, UsersManager>();
+            builder.Services.AddScoped<IProductsRepository, ProductsEfRepository>();
+            builder.Services.AddScoped<ICartsRepository, CartsEfRepository>();
+            builder.Services.AddScoped<IOrdersRepository, OrdersEfRepository>();
+            builder.Services.AddScoped<IUsersManager, UsersEfRepository>();
+            builder.Services.AddScoped<IRolesRepository, RolesEfRepository>();
             builder.Services.AddSession();
             builder.Services.AddScoped<Cart>();
 

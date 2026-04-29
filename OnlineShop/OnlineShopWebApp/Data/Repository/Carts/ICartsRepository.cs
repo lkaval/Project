@@ -7,6 +7,6 @@ namespace OnlineShopWebApp.Data.Repository.Carts
         void Add(Models.Product product, string userId);
         void Clear(string userId);
         void DecreaseAmount(int productId, string userId);
-        Cart TryGetByUserID(string userId);
+        Cart? TryGetByUserID(string userId); // ← добавили ?
     }
 }

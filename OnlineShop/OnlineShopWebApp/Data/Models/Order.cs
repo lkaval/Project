@@ -1,25 +1,27 @@
-﻿namespace OnlineShopWebApp.Data.Models
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+
+namespace OnlineShopWebApp.Data.Models
 {
     public class Order
     {
-        public Guid Id { get; set; }
-        public UserDeliveryInfo User { get; set; }
-        public List<CartItem> Items { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public OrderStatus Status { get; set; }
-        public DateTime CreatedDateTime { get; set; }   
-        public Order()
-        {
-            Id = Guid.NewGuid();
-            Status = OrderStatus.Created;  
-            CreatedDateTime = DateTime.Now;
-        }
-        public decimal TotalAmount
-        {
-            get
-            {
-                return Items?.Sum(item => item.Amount) ?? 0;
-            }
-        }
+        // 🔹 Foreign Key для связи с UserDeliveryInfo
+        public int DeliveryInfoId { get; set; }
+
+        // 🔹 Вернули имя "User", чтобы ваши контроллеры не падали
+        [ForeignKey(nameof(DeliveryInfoId))]
+        public UserDeliveryInfo User { get; set; } = new();
+
+        // 🔹 Теперь тут OrderItem, а не CartItem
+        public List<OrderItem> Items { get; set; } = new();
+
+        public OrderStatus Status { get; set; } = OrderStatus.Created;
+        public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
+
+        public decimal TotalAmount => Items?.Sum(i => i.Amount) ?? 0;
     }
 }
