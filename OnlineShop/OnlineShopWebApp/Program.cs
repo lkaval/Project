@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using OnlineShopWebApp.Data;
 using OnlineShopWebApp.Data.Models;
 using OnlineShopWebApp.Data.Repository.Carts;
 using OnlineShopWebApp.Data.Repository.Orders;
@@ -20,7 +22,11 @@ namespace OnlineShopWebApp
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddRazorPages();
-            builder.Services.AddSingleton<IProductsRepository, ProductsInMemoryRepository>();
+            // builder.Services.AddSingleton<IProductsRepository, ProductsInMemoryRepository>();
+            builder.Services.AddDbContext<AppDbContext>(options =>
+     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddScoped<IProductsRepository, ProductsEfRepository>();
+
             builder.Services.AddSingleton<ICartsRepository, CartsInMemoryRepository>();
             builder.Services.AddSingleton<IOrdersRepository, OrdersInMemoryRepository>();
             builder.Services.AddSingleton<IRolesRepository, RolesInMemoryRepository>();
