@@ -61,7 +61,7 @@ namespace OnlineShopWebApp.Controllers
             _cartsRepository.Clear(Constants.UserId);
 
             // 6. Перенаправляем на страницу успеха (или оставьте View(), если у вас есть Success.cshtml)
-            return View("Success");
+            return View("Buy");
         }
     }
 }
