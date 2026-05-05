@@ -9,8 +9,20 @@ namespace OnlineShopWebApp.Data.Repository.Orders
         public OrdersEfRepository(AppDbContext context) => _context = context;
 
         public void Add(Order order) { _context.Orders.Add(order); _context.SaveChanges(); }
-        public List<Order> GetAll() => _context.Orders.AsNoTracking().ToList();
-        public Order TryGetById(Guid id) => _context.Orders.AsNoTracking().FirstOrDefault(o => o.Id == id);
+
+        public List<Order> GetAll() =>
+            _context.Orders
+                    .Include(o => o.Items)
+                    .Include(o => o.User)
+                    .AsNoTracking()
+                    .ToList();
+
+        public Order TryGetById(Guid id) =>
+            _context.Orders
+                    .Include(o => o.Items).ThenInclude(i => i.Product)
+                    .Include(o => o.User)
+                    .AsNoTracking()
+                    .FirstOrDefault(o => o.Id == id);
 
         public void UpdateOrderStatus(Guid orderId, OrderStatus newStatus)
         {
