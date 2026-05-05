@@ -1,1 +1,15 @@
-﻿<h3>Спасибо за покупку!</h3>
+<link rel="stylesheet" href="~/css/order.css" />
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <h3 class="mb-3">Спасибо за покупку!</h3>
+        @if (TempData["OrderEmail"] is string email)
+        {
+            <p class="text-muted">
+                Ключи активации отправлены на адрес <strong>@email</strong>.<br />
+                Проверьте папку «Входящие» или «Спам».
+            </p>
+        }
+        <a href="/" class="btn btn-primary mt-3">На главную</a>
+    </div>
+</div>

@@ -6,6 +6,7 @@ using OnlineShopWebApp.Data.Repository.Carts;
 using OnlineShopWebApp.Data.Repository.Orders;
 using OnlineShopWebApp.Data.Repository.Products;
 using OnlineShopWebApp.Data.Repository.Roles;
+using OnlineShopWebApp.Services;
 using Serilog;
 namespace OnlineShopWebApp
 {
@@ -31,6 +32,8 @@ namespace OnlineShopWebApp
             builder.Services.AddScoped<IOrdersRepository, OrdersEfRepository>();
             builder.Services.AddScoped<IUsersManager, UsersEfRepository>();
             builder.Services.AddScoped<IRolesRepository, RolesEfRepository>();
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddSession();
             builder.Services.AddScoped<Cart>();
 

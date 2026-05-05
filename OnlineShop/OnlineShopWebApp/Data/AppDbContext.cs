@@ -15,6 +15,7 @@ namespace OnlineShopWebApp.Data
         public DbSet<UserDeliveryInfo> UserDeliveryInfos { get; set; }
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<Areas.Admin.Models.Role> Roles { get; set; }
+        public DbSet<ProductKey> ProductKeys { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,6 +59,14 @@ namespace OnlineShopWebApp.Data
                 e.HasKey(oi => oi.Id);
                 e.HasOne(oi => oi.Order).WithMany(o => o.Items).HasForeignKey(oi => oi.OrderId).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(oi => oi.Product).WithMany().HasForeignKey(oi => oi.ProductId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ProductKey
+            modelBuilder.Entity<ProductKey>(e =>
+            {
+                e.HasKey(k => k.Id);
+                e.Property(k => k.Key).IsRequired().HasMaxLength(29);
+                e.HasOne(k => k.Product).WithMany().HasForeignKey(k => k.ProductId).OnDelete(DeleteBehavior.Restrict);
             });
 
             // Простые таблицы

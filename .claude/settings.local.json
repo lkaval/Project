@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(ls -R \"c:\\\\Users\\\\kiril\\\\OneDrive\\\\Desktop\\\\���\\\\���\\\\Project\")",
+      "PowerShell(head -50)",
+      "Bash(dotnet add *)",
+      "Bash(dotnet ef *)",
+      "PowerShell(Get-Process -Id 34584 -ErrorAction SilentlyContinue)",
+      "Bash(ping -n 6 127.0.0.1)",
+      "Bash(ping -n 8 127.0.0.1)"
+    ]
+  }
+}
