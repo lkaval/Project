@@ -5,6 +5,7 @@ using OnlineShopWebApp.Data.Models;
 using OnlineShopWebApp.Data.Repository.Carts;
 using OnlineShopWebApp.Data.Repository.Orders;
 using OnlineShopWebApp.Services;
+using System.Text.Json;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -34,19 +35,50 @@ namespace OnlineShopWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Buy(UserDeliveryInfo user)
+        public IActionResult ConfirmDelivery(UserDeliveryInfo user)
         {
             if (!ModelState.IsValid)
-            {
                 return View("Index", user);
-            }
 
-            var existingCart = _cartsRepository.TryGetByUserID(User.Identity!.Name!);
-            if (existingCart == null || !existingCart.Items.Any())
+            var cart = _cartsRepository.TryGetByUserID(User.Identity!.Name!);
+            if (cart == null || !cart.Items.Any())
             {
                 ModelState.AddModelError("", "Корзина пуста или не найдена.");
                 return View("Index", user);
             }
+
+            HttpContext.Session.SetString("DeliveryInfo", JsonSerializer.Serialize(user));
+
+            return RedirectToAction(nameof(Payment));
+        }
+
+        public IActionResult Payment()
+        {
+            var json = HttpContext.Session.GetString("DeliveryInfo");
+            if (json == null)
+                return RedirectToAction(nameof(Index));
+
+            var cart = _cartsRepository.TryGetByUserID(User.Identity!.Name!);
+            if (cart == null || !cart.Items.Any())
+                return RedirectToAction("Index", "Cart");
+
+            ViewBag.Total = cart.Items.Sum(i => i.Amount);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Pay()
+        {
+            var json = HttpContext.Session.GetString("DeliveryInfo");
+            if (json == null)
+                return RedirectToAction(nameof(Index));
+
+            var user = JsonSerializer.Deserialize<UserDeliveryInfo>(json)!;
+            user.Id = 0;
+
+            var existingCart = _cartsRepository.TryGetByUserID(User.Identity!.Name!);
+            if (existingCart == null || !existingCart.Items.Any())
+                return RedirectToAction("Index", "Cart");
 
             var orderItems = existingCart.Items.Select(ci => new OrderItem
             {
@@ -64,7 +96,6 @@ namespace OnlineShopWebApp.Controllers
 
             _ordersRepository.Add(order);
 
-            // Генерируем ключ для каждой единицы каждого товара
             var keyRecords = new List<ProductKey>();
             var keysForEmail = new List<(string ProductName, string Key)>();
 
@@ -87,11 +118,10 @@ namespace OnlineShopWebApp.Controllers
             await _context.SaveChangesAsync();
 
             _cartsRepository.Clear(User.Identity!.Name!);
+            HttpContext.Session.Remove("DeliveryInfo");
 
-            // Отправляем email в фоне — не блокируем ответ при ошибке SMTP
             _ = _emailService.SendOrderKeysAsync(user.Email, user.Name, order.Id, keysForEmail)
-                             .ContinueWith(t => { /* ошибка логируется Serilog через middleware */ },
-                                           TaskContinuationOptions.OnlyOnFaulted);
+                             .ContinueWith(t => { }, TaskContinuationOptions.OnlyOnFaulted);
 
             TempData["OrderEmail"] = user.Email;
             return View("Buy");

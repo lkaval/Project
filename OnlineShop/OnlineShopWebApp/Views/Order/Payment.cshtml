@@ -1,0 +1,150 @@
+<link rel="stylesheet" href="~/css/order.css" />
+
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-md-5">
+        <h4 class="mb-4 text-center">Оплата заказа</h4>
+
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body bg-primary text-white rounded" style="background: linear-gradient(135deg,#1a3a6b,#2563eb) !important;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="fw-semibold fs-6">SteamKooper Pay</span>
+                    <svg width="42" height="28" viewBox="0 0 42 28" fill="none">
+                        <circle cx="16" cy="14" r="12" fill="#eb001b" opacity=".9"/>
+                        <circle cx="26" cy="14" r="12" fill="#f79e1b" opacity=".9"/>
+                    </svg>
+                </div>
+                <div id="card-preview" class="letter-spacing-wide fs-5 mb-3" style="letter-spacing:.15em;font-family:monospace">
+                    •••• •••• •••• ••••
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-white-50" style="font-size:.7rem">ВЛАДЕЛЕЦ</div>
+                        <div id="name-preview" class="text-uppercase" style="font-size:.85rem">ИМЯФАМИЛИЯ</div>
+                    </div>
+                    <div>
+                        <div class="text-white-50" style="font-size:.7rem">СРОК</div>
+                        <div id="expiry-preview" style="font-size:.85rem">MM/YY</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" asp-controller="Order" asp-action="Pay" id="payment-form">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label">Номер карты</label>
+                <input id="card-number" type="text" class="form-control form-control-lg"
+                       placeholder="0000 0000 0000 0000" maxlength="19"
+                       autocomplete="cc-number" inputmode="numeric" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Имя владельца</label>
+                <input id="card-name" type="text" class="form-control"
+                       placeholder="IVAN IVANOV" maxlength="26"
+                       autocomplete="cc-name" required />
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label class="form-label">Срок действия</label>
+                    <input id="card-expiry" type="text" class="form-control"
+                           placeholder="MM/YY" maxlength="5"
+                           autocomplete="cc-exp" inputmode="numeric" required />
+                </div>
+                <div class="col-6">
+                    <label class="form-label">CVV / CVC</label>
+                    <input id="card-cvv" type="password" class="form-control"
+                           placeholder="•••" maxlength="3"
+                           autocomplete="cc-csc" inputmode="numeric" required />
+                </div>
+            </div>
+
+            <div id="pay-error" class="alert alert-danger d-none"></div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100" id="pay-btn">
+                Оплатить @ViewBag.Total.ToString("N2") руб.
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                <svg width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                    <path d="M8 1a5 5 0 0 1 5 5v1h1a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 1 5-5zm0 1a4 4 0 0 0-4 4v1h8V6a4 4 0 0 0-4-4z"/>
+                </svg>
+                Данные карты защищены шифрованием TLS
+            </small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const numInput    = document.getElementById('card-number');
+    const nameInput   = document.getElementById('card-name');
+    const expiryInput = document.getElementById('card-expiry');
+    const cvvInput    = document.getElementById('card-cvv');
+    const preview     = document.getElementById('card-preview');
+    const namePrev    = document.getElementById('name-preview');
+    const expiryPrev  = document.getElementById('expiry-preview');
+    const form        = document.getElementById('payment-form');
+    const payBtn      = document.getElementById('pay-btn');
+    const errBox      = document.getElementById('pay-error');
+
+    numInput.addEventListener('input', function () {
+        var v = this.value.replace(/\D/g, '').slice(0, 16);
+        this.value = v.replace(/(.{4})/g, '$1 ').trim();
+        var padded = (v + '................').slice(0, 16);
+        preview.textContent = padded.replace(/(.{4})/g, '$1 ').trim().replace(/\./g, '•');
+    });
+
+    nameInput.addEventListener('input', function () {
+        var v = this.value.toUpperCase().replace(/[^A-ZА-ЯЁ\s]/gi, '');
+        this.value = v;
+        namePrev.textContent = v || 'ИМЯ ФАМИЛИЯ';
+    });
+
+    expiryInput.addEventListener('input', function () {
+        var v = this.value.replace(/\D/g, '').slice(0, 4);
+        if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
+        this.value = v;
+        expiryPrev.textContent = v || 'MM/YY';
+    });
+
+    function validate() {
+        var num = numInput.value.replace(/\s/g, '');
+        var expiry = expiryInput.value;
+        var cvv = cvvInput.value;
+        var name = nameInput.value.trim();
+
+        if (num.length !== 16)          return 'Введите корректный номер карты (16 цифр)';
+        if (!/^\d{2}\/\d{2}$/.test(expiry)) return 'Введите срок действия в формате MM/YY';
+
+        var parts = expiry.split('/');
+        var month = parseInt(parts[0]), year = parseInt('20' + parts[1]);
+        var now = new Date();
+        if (month < 1 || month > 12) return 'Неверный месяц срока действия';
+        if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1))
+            return 'Срок действия карты истёк';
+
+        if (cvv.length !== 3)           return 'Введите CVV (3 цифры)';
+        if (name.length < 2)            return 'Введите имя владельца карты';
+        return null;
+    }
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var err = validate();
+        if (err) {
+            errBox.textContent = err;
+            errBox.classList.remove('d-none');
+            return;
+        }
+        errBox.classList.add('d-none');
+        payBtn.disabled = true;
+        payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Обработка платежа...';
+        setTimeout(function () { form.submit(); }, 1800);
+    });
+</script>
+}
