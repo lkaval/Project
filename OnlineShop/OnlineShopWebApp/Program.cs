@@ -6,6 +6,7 @@ using OnlineShopWebApp.Data.Repository.Carts;
 using OnlineShopWebApp.Data.Repository.Orders;
 using OnlineShopWebApp.Data.Repository.Products;
 using OnlineShopWebApp.Data.Repository.Roles;
+using OnlineShopWebApp.Data.Repository.Favorites;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using OnlineShopWebApp.Services;
 using Serilog;
@@ -35,6 +36,12 @@ namespace OnlineShopWebApp
             builder.Services.AddScoped<IRolesRepository, RolesEfRepository>();
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IFavoritesRepository, FavoritesEfRepository>();
+            builder.Services.AddMemoryCache();
+            builder.Services.AddHttpClient<IRawgService, RawgService>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.rawg.io/api/");
+            });
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

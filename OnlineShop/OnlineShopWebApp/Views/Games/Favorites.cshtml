@@ -1,0 +1,57 @@
+@using OnlineShopWebApp.Data.Models
+@model List<Favorite>
+
+@{
+    ViewData["Title"] = "Избранные игры";
+}
+
+<h3 class="mb-4">Мои избранные игры</h3>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        У вас пока нет избранных игр.
+        <a asp-controller="Games" asp-action="Index" class="alert-link">Перейти в каталог</a>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3">
+        @foreach (var fav in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <a asp-controller="Games" asp-action="Detail" asp-route-id="@fav.RawgGameId">
+                        <img src="@(fav.GameImageUrl ?? "/images/no-image.png")"
+                             class="card-img-top" alt="@fav.GameName"
+                             style="height:160px;object-fit:cover;" />
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <a asp-controller="Games" asp-action="Detail" asp-route-id="@fav.RawgGameId"
+                           class="text-decoration-none text-dark">
+                            <h6 class="card-title fw-semibold mb-1">@fav.GameName</h6>
+                        </a>
+                        <div class="text-muted small mb-2">
+                            Добавлено: @fav.AddedAt.ToLocalTime().ToString("d")
+                        </div>
+
+                        <div class="mt-auto d-flex gap-2">
+                            <a asp-controller="Games" asp-action="Detail" asp-route-id="@fav.RawgGameId"
+                               class="btn btn-sm btn-outline-primary flex-grow-1">Подробнее</a>
+
+                            <form method="post" asp-controller="Games" asp-action="ToggleFavorite"
+                                  asp-route-returnUrl="/Games/Favorites">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="gameId" value="@fav.RawgGameId" />
+                                <input type="hidden" name="gameName" value="@fav.GameName" />
+                                <input type="hidden" name="imageUrl" value="@fav.GameImageUrl" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        title="Удалить из избранного">✕</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,136 @@
+@using OnlineShopWebApp.Controllers
+@model GamesIndexViewModel
+
+@{
+    ViewData["Title"] = "Каталог игр";
+    bool isAuth = User.Identity?.IsAuthenticated == true;
+}
+
+<div class="mb-4">
+    <h3 class="mb-3">Каталог игр</h3>
+
+    <form method="get" asp-controller="Games" asp-action="Index" class="d-flex gap-2 mb-3">
+        <input type="text" name="q" value="@Model.Query"
+               class="form-control" placeholder="Поиск по названию..." style="max-width:400px" />
+        <input type="hidden" name="genre" value="@Model.SelectedGenre" />
+        <button class="btn btn-primary">Найти</button>
+        @if (!string.IsNullOrEmpty(Model.Query))
+        {
+            <a asp-controller="Games" asp-action="Index" class="btn btn-outline-secondary">Сбросить</a>
+        }
+    </form>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a asp-controller="Games" asp-action="Index" asp-route-q="@Model.Query"
+           class="btn btn-sm @(Model.SelectedGenre == null ? "btn-dark" : "btn-outline-secondary")">
+            Все жанры
+        </a>
+        @foreach (var genre in Model.Genres.Take(12))
+        {
+            <a asp-controller="Games" asp-action="Index"
+               asp-route-q="@Model.Query" asp-route-genre="@genre.Slug"
+               class="btn btn-sm @(Model.SelectedGenre == genre.Slug ? "btn-dark" : "btn-outline-secondary")">
+                @genre.Name
+            </a>
+        }
+    </div>
+
+    @if (!Model.Games.Any())
+    {
+        <div class="alert alert-info">По вашему запросу игры не найдены.</div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3">
+            @foreach (var item in Model.Games)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <a asp-controller="Games" asp-action="Detail" asp-route-id="@item.Game.Id">
+                            <img src="@(item.Game.BackgroundImage ?? "/images/no-image.png")"
+                                 class="card-img-top" alt="@item.Game.Name"
+                                 style="height:160px;object-fit:cover;" />
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <a asp-controller="Games" asp-action="Detail" asp-route-id="@item.Game.Id"
+                               class="text-decoration-none text-dark">
+                                <h6 class="card-title mb-1 fw-semibold">@item.Game.Name</h6>
+                            </a>
+                            <div class="text-warning mb-1" style="font-size:.85rem">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span>@(i <= Math.Round(item.Game.Rating) ? "★" : "☆")</span>
+                                }
+                                <span class="text-muted ms-1">@item.Game.Rating.ToString("0.0")</span>
+                            </div>
+                            <div class="mb-2" style="font-size:.75rem">
+                                @string.Join(", ", item.Game.Genres.Take(2).Select(g => g.Name))
+                            </div>
+
+                            <div class="mt-auto">
+                                @if (isAuth)
+                                {
+                                    <form method="post" asp-controller="Games" asp-action="ToggleFavorite"
+                                          asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="gameId" value="@item.Game.Id" />
+                                        <input type="hidden" name="gameName" value="@item.Game.Name" />
+                                        <input type="hidden" name="imageUrl" value="@item.Game.BackgroundImage" />
+                                        <button type="submit"
+                                                class="btn btn-sm w-100 @(item.IsFavorite ? "btn-danger" : "btn-outline-danger")">
+                                            @(item.IsFavorite ? "❤ В избранном" : "♡ В избранное")
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Account" asp-action="Authorization"
+                                       class="btn btn-sm btn-outline-secondary w-100">
+                                        Войдите, чтобы добавить
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-4 d-flex justify-content-center">
+                <ul class="pagination">
+                    @if (Model.Page > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-controller="Games" asp-action="Index"
+                               asp-route-q="@Model.Query" asp-route-genre="@Model.SelectedGenre"
+                               asp-route-page="@(Model.Page - 1)">‹</a>
+                        </li>
+                    }
+
+                    @for (int p = Math.Max(1, Model.Page - 2); p <= Math.Min(Model.TotalPages, Model.Page + 2); p++)
+                    {
+                        <li class="page-item @(p == Model.Page ? "active" : "")">
+                            <a class="page-link"
+                               asp-controller="Games" asp-action="Index"
+                               asp-route-q="@Model.Query" asp-route-genre="@Model.SelectedGenre"
+                               asp-route-page="@p">@p</a>
+                        </li>
+                    }
+
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-controller="Games" asp-action="Index"
+                               asp-route-q="@Model.Query" asp-route-genre="@Model.SelectedGenre"
+                               asp-route-page="@(Model.Page + 1)">›</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+</div>

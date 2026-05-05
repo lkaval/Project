@@ -11,6 +11,15 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Games" asp-action="Index">Каталог игр</a>
+                    </li>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Games" asp-action="Favorites">Избранное</a>
+                        </li>
+                    }
 
                     @if (User.Identity?.IsAuthenticated == true)
                     {

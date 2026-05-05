@@ -1,0 +1,96 @@
+@using OnlineShopWebApp.Services
+@model RawgGame
+
+@{
+    ViewData["Title"] = Model.Name;
+    bool isAuth = User.Identity?.IsAuthenticated == true;
+    bool isFav = (bool)(ViewBag.IsFavorite ?? false);
+}
+
+<div class="mb-2">
+    <a asp-controller="Games" asp-action="Index" class="text-decoration-none text-muted">
+        ← Каталог игр
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.BackgroundImage))
+{
+    <div class="rounded mb-4 overflow-hidden" style="max-height:400px">
+        <img src="@Model.BackgroundImage" alt="@Model.Name"
+             class="w-100" style="object-fit:cover;max-height:400px" />
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h2 class="fw-bold mb-1">@Model.Name</h2>
+
+        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+            <div class="text-warning fs-5">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <span>@(i <= Math.Round(Model.Rating) ? "★" : "☆")</span>
+                }
+                <span class="text-muted fs-6 ms-1">@Model.Rating.ToString("0.00") / 5</span>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Released))
+            {
+                <span class="badge bg-secondary">Релиз: @Model.Released</span>
+            }
+        </div>
+
+        @if (Model.Genres.Any())
+        {
+            <div class="mb-3">
+                @foreach (var genre in Model.Genres)
+                {
+                    <a asp-controller="Games" asp-action="Index" asp-route-genre="@genre.Slug"
+                       class="badge bg-light text-dark border me-1 text-decoration-none">
+                        @genre.Name
+                    </a>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.DescriptionRaw))
+        {
+            <div class="text-body" style="white-space:pre-line;line-height:1.7">
+                @Model.DescriptionRaw.Length > 1500
+                    ? Model.DescriptionRaw[..1500] + "..."
+                    : Model.DescriptionRaw
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4 mt-3 mt-md-0">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="mb-3 text-muted small">
+                    <div>Рейтингов: @Model.RatingsCount.ToString("N0")</div>
+                </div>
+
+                @if (isAuth)
+                {
+                    <form method="post" asp-controller="Games" asp-action="ToggleFavorite"
+                          asp-route-returnUrl="@($"/Games/Detail/{Model.Id}")">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="gameId" value="@Model.Id" />
+                        <input type="hidden" name="gameName" value="@Model.Name" />
+                        <input type="hidden" name="imageUrl" value="@Model.BackgroundImage" />
+                        <button type="submit"
+                                class="btn w-100 @(isFav ? "btn-danger" : "btn-outline-danger")">
+                            @(isFav ? "❤ Убрать из избранного" : "♡ Добавить в избранное")
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Authorization"
+                       class="btn btn-outline-secondary w-100">
+                        Войдите, чтобы добавить в избранное
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

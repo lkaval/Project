@@ -16,6 +16,7 @@ namespace OnlineShopWebApp.Data
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<Areas.Admin.Models.Role> Roles { get; set; }
         public DbSet<ProductKey> ProductKeys { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -75,6 +76,15 @@ namespace OnlineShopWebApp.Data
                 e.HasKey(u => u.Id);
                 e.Property(u => u.RoleId).HasDefaultValue(1);
                 e.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Favorite>(e =>
+            {
+                e.HasKey(f => f.Id);
+                e.Property(f => f.UserId).IsRequired().HasMaxLength(256);
+                e.Property(f => f.GameName).IsRequired().HasMaxLength(200);
+                e.Property(f => f.GameImageUrl).HasMaxLength(500);
+                e.HasIndex(f => new { f.UserId, f.RawgGameId }).IsUnique();
             });
 
             modelBuilder.Entity<UserDeliveryInfo>().HasKey(d => d.Id);

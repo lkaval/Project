@@ -13,7 +13,12 @@
       "PowerShell(Stop-Process -Id 17208 -Force -ErrorAction SilentlyContinue)",
       "PowerShell(Get-Process -Name \"OnlineShopWebApp\" -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Force)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(Get-ChildItem -Recurse -Filter \"*.cshtml\")",
+      "Bash(Select-String \"Admin/Roles\\\\|asp-area.*Admin.*asp-controller.*Role\\\\|Roles\")",
+      "Bash(Select-Object -First 30)"
     ]
   }
 }
