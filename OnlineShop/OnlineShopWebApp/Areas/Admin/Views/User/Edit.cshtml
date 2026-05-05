@@ -1,0 +1,39 @@
+@using OnlineShopWebApp.Data.Models
+@using OnlineShopWebApp.Areas.Admin.Models
+@model UserAccount
+
+<div class="row">
+    @await Html.PartialAsync("AdminLeftMenu")
+    <div class="col-md-6">
+        <h3 class="mb-4">Редактирование пользователя</h3>
+
+        <form method="post" asp-area="Admin" asp-controller="User" asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label">Email</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Новый пароль <small class="text-muted">(оставьте пустым, чтобы не менять)</small></label>
+                <input asp-for="Password" type="password" class="form-control" value="" autocomplete="new-password" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="RoleId" class="form-label">Роль</label>
+                <select asp-for="RoleId" class="form-select">
+                    @foreach (Role role in ViewBag.Roles)
+                    {
+                        <option value="@role.Id" selected="@(role.Id == Model.RoleId)">@role.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="RoleId" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">Сохранить</button>
+            <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-secondary ms-2">Отмена</a>
+        </form>
+    </div>
+</div>

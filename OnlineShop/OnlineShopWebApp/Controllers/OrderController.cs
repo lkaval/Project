@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShopWebApp.Data;
 using OnlineShopWebApp.Data.Models;
@@ -7,6 +8,7 @@ using OnlineShopWebApp.Services;
 
 namespace OnlineShopWebApp.Controllers
 {
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly ICartsRepository _cartsRepository;
@@ -39,7 +41,7 @@ namespace OnlineShopWebApp.Controllers
                 return View("Index", user);
             }
 
-            var existingCart = _cartsRepository.TryGetByUserID(Constants.UserId);
+            var existingCart = _cartsRepository.TryGetByUserID(User.Identity!.Name!);
             if (existingCart == null || !existingCart.Items.Any())
             {
                 ModelState.AddModelError("", "Корзина пуста или не найдена.");
@@ -84,7 +86,7 @@ namespace OnlineShopWebApp.Controllers
             _context.ProductKeys.AddRange(keyRecords);
             await _context.SaveChangesAsync();
 
-            _cartsRepository.Clear(Constants.UserId);
+            _cartsRepository.Clear(User.Identity!.Name!);
 
             // Отправляем email в фоне — не блокируем ответ при ошибке SMTP
             _ = _emailService.SendOrderKeysAsync(user.Email, user.Name, order.Id, keysForEmail)

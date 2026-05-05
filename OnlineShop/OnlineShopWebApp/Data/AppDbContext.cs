@@ -69,8 +69,14 @@ namespace OnlineShopWebApp.Data
                 e.HasOne(k => k.Product).WithMany().HasForeignKey(k => k.ProductId).OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Простые таблицы
-            modelBuilder.Entity<UserAccount>().HasKey(u => u.Id);
+            // UserAccount → Role
+            modelBuilder.Entity<UserAccount>(e =>
+            {
+                e.HasKey(u => u.Id);
+                e.Property(u => u.RoleId).HasDefaultValue(1);
+                e.HasOne(u => u.Role).WithMany().HasForeignKey(u => u.RoleId).OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<UserDeliveryInfo>().HasKey(d => d.Id);
             modelBuilder.Entity<Areas.Admin.Models.Role>().HasKey(r => r.Id);
 
@@ -80,6 +86,15 @@ namespace OnlineShopWebApp.Data
 
         private void SeedInitialData(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Areas.Admin.Models.Role>().HasData(
+                new Areas.Admin.Models.Role { Id = 1, Name = "User" },
+                new Areas.Admin.Models.Role { Id = 2, Name = "Admin" }
+            );
+
+            modelBuilder.Entity<UserAccount>().HasData(
+                new UserAccount { Id = 9999, Name = "admin@steamkooper.ru", Password = "admin", RoleId = 2 }
+            );
+
             modelBuilder.Entity<Product>().HasData(
                 new Product("Elden Ring", 1999, "...", "/images/Elden_Ring_Logo.jpg") { Id = 1 },
                 new Product("Cyberpunk 2077", 1299, "...", "/images/Cyberpunk_2077_Logo.jpg") { Id = 2 },

@@ -6,6 +6,7 @@ using OnlineShopWebApp.Data.Repository.Carts;
 using OnlineShopWebApp.Data.Repository.Orders;
 using OnlineShopWebApp.Data.Repository.Products;
 using OnlineShopWebApp.Data.Repository.Roles;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using OnlineShopWebApp.Services;
 using Serilog;
 namespace OnlineShopWebApp
@@ -34,7 +35,21 @@ namespace OnlineShopWebApp
             builder.Services.AddScoped<IRolesRepository, RolesEfRepository>();
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddSession();
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Account/Authorization";
+                    options.AccessDeniedPath = "/Account/AccessDenied";
+                    options.ExpireTimeSpan = TimeSpan.FromDays(1);
+                });
+
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(2);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
             builder.Services.AddScoped<Cart>();
 
             var app = builder.Build();
@@ -49,6 +64,7 @@ namespace OnlineShopWebApp
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseSerilogRequestLogging();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();

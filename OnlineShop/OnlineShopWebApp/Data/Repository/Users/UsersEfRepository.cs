@@ -1,5 +1,3 @@
-﻿using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using OnlineShopWebApp.Data.Models;
 
@@ -9,10 +7,7 @@ namespace OnlineShopWebApp.Data.Repository.Users
     {
         private readonly AppDbContext _context;
 
-        public UsersEfRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        public UsersEfRepository(AppDbContext context) => _context = context;
 
         public void Add(UserAccount user)
         {
@@ -20,14 +15,26 @@ namespace OnlineShopWebApp.Data.Repository.Users
             _context.SaveChanges();
         }
 
-        public List<UserAccount> GetAll()
+        public void Update(UserAccount user)
         {
-            return _context.UserAccounts.AsNoTracking().ToList();
+            var existing = _context.UserAccounts.Find(user.Id);
+            if (existing == null) return;
+            existing.Name = user.Name;
+            existing.RoleId = user.RoleId;
+            if (!string.IsNullOrWhiteSpace(user.Password))
+                existing.Password = user.Password;
+            _context.SaveChanges();
         }
 
-        public UserAccount? TryByGetName(string name)
-        {
-            return _context.UserAccounts.AsNoTracking().FirstOrDefault(u => u.Name == name);
-        }
+        public List<UserAccount> GetAll() =>
+            _context.UserAccounts.Include(u => u.Role).AsNoTracking().ToList();
+
+        public UserAccount? TryByGetName(string name) =>
+            _context.UserAccounts.Include(u => u.Role).AsNoTracking()
+                    .FirstOrDefault(u => u.Name == name);
+
+        public UserAccount? TryById(int id) =>
+            _context.UserAccounts.Include(u => u.Role).AsNoTracking()
+                    .FirstOrDefault(u => u.Id == id);
     }
 }
