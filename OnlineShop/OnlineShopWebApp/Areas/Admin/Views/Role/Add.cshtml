@@ -1,5 +1,5 @@
 ﻿@model Role
-<form method="post" asp-area="admin" asp-controller="Admin" asp-action="AddRole">
+<form method="post" asp-area="Admin" asp-controller="Role" asp-action="Add">
     <div class="row">
         @await Html.PartialAsync("AdminLeftMenu")
         <div class="col-md-9">
@@ -20,14 +20,10 @@
                     </div>
 
                     <div class="form-actions mt-4">
-                        <button type="submit" 
-                            asp-area="Admin"
-                            asp-controller="Role"
-                            asp-action="Add"
-                            class="btn btn-success">
+                        <button type="submit" class="btn btn-success">
                             <i class="fas fa-plus-circle"></i> Добавить роль
                         </button>
-                        <a asp-controller="Admin" asp-action="Roles" class="btn btn-secondary ms-2">
+                        <a asp-area="Admin" asp-controller="Role" asp-action="Index" class="btn btn-secondary ms-2">
                             <i class="fas fa-arrow-left"></i> Назад к списку
                         </a>
                     </div>
