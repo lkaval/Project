@@ -8,5 +8,6 @@ namespace OnlineShopWebApp.Data.Repository.Products
         Product TryGetById(int id);
         void Add(Product product);
         void Update(Product product);
+        void Remove(int id);
     }
 }

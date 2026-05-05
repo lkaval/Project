@@ -29,7 +29,10 @@ namespace OnlineShopWebApp.Data.Repository.Products
             existing.Name = product.Name;
             existing.Description = product.Description;
             existing.Cost = product.Cost;
-            existing.ImagePath = product.ImagePath; // ← не забудьте про картинку!
+            existing.ImagePath = product.ImagePath;
         }
+
+        public void Remove(int id) =>
+            products.RemoveAll(p => p.Id == id);
     }
 }

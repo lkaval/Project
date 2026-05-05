@@ -40,5 +40,13 @@ namespace OnlineShopWebApp.Data.Repository.Products
 
             _context.SaveChanges();
         }
+
+        public void Remove(int id)
+        {
+            var product = _context.Products.Find(id);
+            if (product == null) return;
+            _context.Products.Remove(product);
+            _context.SaveChanges();
+        }
     }
 }

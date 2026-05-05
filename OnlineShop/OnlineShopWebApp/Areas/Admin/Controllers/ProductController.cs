@@ -128,6 +128,12 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
         }
 
+        public IActionResult Remove(int productId)
+        {
+            _productsRepository.Remove(productId);
+            return RedirectToAction(nameof(Index));
+        }
+
         public IActionResult Edit(int productId)
         {
             var product = _productsRepository.TryGetById(productId);
