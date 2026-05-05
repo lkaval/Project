@@ -1,0 +1,133 @@
+@using OnlineShopWebApp.Areas.Admin.Models
+@using OnlineShopWebApp.Data.Models
+@model OrderEditViewModel
+
+<div class="row">
+    @await Html.PartialAsync("AdminLeftMenu")
+
+    <div class="col-md-9">
+        <h3 class="mb-4">Редактирование заказа <small class="text-muted fs-6">#@Model.OrderId.ToString()[..8].ToUpper()</small></h3>
+
+        <form method="post" asp-area="Admin" asp-controller="Order" asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="OrderId" />
+            <input type="hidden" asp-for="DeliveryInfoId" />
+
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">Статус заказа</div>
+                <div class="card-body">
+                    <select asp-for="Status" asp-items="@Html.GetEnumSelectList<OrderStatus>()" class="form-select w-auto"></select>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">Данные получателя</div>
+                <div class="card-body row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="RecipientName" class="form-label">ФИО</label>
+                        <input asp-for="RecipientName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label">Телефон</label>
+                        <input asp-for="Phone" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Address" class="form-label">Адрес доставки</label>
+                        <input asp-for="Address" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">Позиции заказа</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Товар</th>
+                                <th>Цена за шт.</th>
+                                <th style="width:130px">Количество</th>
+                                <th>Сумма</th>
+                                <th>Удалить</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Items.Count; i++)
+                            {
+                                <tr id="row-@i">
+                                    <input type="hidden" asp-for="Items[i].ItemId" />
+                                    <input type="hidden" asp-for="Items[i].ProductName" />
+                                    <input type="hidden" asp-for="Items[i].UnitPrice" />
+
+                                    <td class="align-middle">@Model.Items[i].ProductName</td>
+                                    <td class="align-middle">@Model.Items[i].UnitPrice.ToString("N2") руб.</td>
+                                    <td>
+                                        <input asp-for="Items[i].Quantity" type="number" min="1"
+                                               class="form-control form-control-sm qty-input"
+                                               data-row="@i" data-unit="@Model.Items[i].UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                                    </td>
+                                    <td class="align-middle subtotal-@i">
+                                        @((Model.Items[i].UnitPrice * Model.Items[i].Quantity).ToString("N2")) руб.
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="form-check">
+                                            <input asp-for="Items[i].Delete" type="checkbox" class="form-check-input delete-check" data-row="@i" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="text-end fw-semibold">Итого:</td>
+                                <td id="grand-total" class="fw-semibold">
+                                    @Model.Items.Sum(x => x.UnitPrice * x.Quantity).ToString("N2") руб.
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mb-4">
+                <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelectorAll('.qty-input').forEach(function(input) {
+        input.addEventListener('input', recalc);
+    });
+    document.querySelectorAll('.delete-check').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            var row = document.getElementById('row-' + this.dataset.row);
+            row.style.opacity = this.checked ? '0.4' : '1';
+            recalc();
+        });
+    });
+
+    function recalc() {
+        var total = 0;
+        document.querySelectorAll('.qty-input').forEach(function(input) {
+            var i = input.dataset.row;
+            var unit = parseFloat(input.dataset.unit);
+            var qty = parseInt(input.value) || 0;
+            var sub = unit * qty;
+            var deleted = document.querySelector('.delete-check[data-row="' + i + '"]').checked;
+            var cell = document.querySelector('.subtotal-' + i);
+            cell.textContent = deleted ? '—' : sub.toFixed(2) + ' руб.';
+            if (!deleted) total += sub;
+        });
+        document.getElementById('grand-total').textContent = total.toFixed(2) + ' руб.';
+    }
+</script>
+}

@@ -8,5 +8,6 @@ namespace OnlineShopWebApp.Data.Repository.Orders
         List<Order> GetAll();
         Order? TryGetById(Guid id); // ← добавили ?
         void UpdateOrderStatus(Guid orderId, OrderStatus newStatus);
+        void UpdateOrder(OnlineShopWebApp.Areas.Admin.Models.OrderEditViewModel model);
     }
 }

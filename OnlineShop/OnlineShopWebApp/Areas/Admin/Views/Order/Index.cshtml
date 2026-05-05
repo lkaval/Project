@@ -30,13 +30,18 @@
                             <td>@Model[i].CreatedDateTime.ToString("d")</td>
                             <td>@Model[i].CreatedDateTime.ToString("t")</td>
 
-                            <td>
+                            <td class="d-flex gap-2">
                                 <a asp-area="Admin"
                                    asp-controller="Order"
                                    asp-action="Detail"
                                    asp-route-orderId="@Model[i].Id"
-                                   class="btn btn-primary">Подробнее</a>
-                                </td>
+                                   class="btn btn-primary btn-sm">Подробнее</a>
+                                <a asp-area="Admin"
+                                   asp-controller="Order"
+                                   asp-action="Edit"
+                                   asp-route-orderId="@Model[i].Id"
+                                   class="btn btn-outline-secondary btn-sm">Редактировать</a>
+                            </td>
 
                         </tr>
                     }

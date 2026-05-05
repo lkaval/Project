@@ -29,5 +29,40 @@ namespace OnlineShopWebApp.Data.Repository.Orders
             var order = _context.Orders.Find(orderId);
             if (order != null) { order.Status = newStatus; _context.SaveChanges(); }
         }
+
+        public void UpdateOrder(Areas.Admin.Models.OrderEditViewModel model)
+        {
+            var order = _context.Orders.Include(o => o.Items).FirstOrDefault(o => o.Id == model.OrderId);
+            if (order == null) return;
+
+            order.Status = model.Status;
+
+            var delivery = _context.UserDeliveryInfos.Find(model.DeliveryInfoId);
+            if (delivery != null)
+            {
+                delivery.Name = model.RecipientName;
+                delivery.Phone = model.Phone;
+                delivery.Address = model.Address;
+                delivery.Email = model.Email;
+            }
+
+            foreach (var dto in model.Items)
+            {
+                var item = order.Items.FirstOrDefault(i => i.Id == dto.ItemId);
+                if (item == null) continue;
+
+                if (dto.Delete)
+                {
+                    _context.OrderItems.Remove(item);
+                }
+                else if (dto.Quantity > 0)
+                {
+                    item.Quantity = dto.Quantity;
+                    item.Amount = dto.UnitPrice * dto.Quantity;
+                }
+            }
+
+            _context.SaveChanges();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OnlineShopWebApp.Data.Models;
+﻿using OnlineShopWebApp.Areas.Admin.Models;
+using OnlineShopWebApp.Data.Models;
 
 namespace OnlineShopWebApp.Data.Repository.Orders
 {
@@ -26,9 +27,14 @@ namespace OnlineShopWebApp.Data.Repository.Orders
         {
             var order = TryGetById(orderId);
             if (order != null)
-            {
                 order.Status = newStatus;
-            }
+        }
+
+        public void UpdateOrder(OrderEditViewModel model)
+        {
+            var order = TryGetById(model.OrderId);
+            if (order == null) return;
+            order.Status = model.Status;
         }
     }
 }
