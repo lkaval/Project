@@ -22,6 +22,11 @@ namespace OnlineShopWebApp
             builder.Host.UseSerilog((context, configuration) => configuration
                    .ReadFrom.Configuration(context.Configuration)
                    .Enrich.WithProperty("ApplicationName", "SteamKooper"));
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = 52_428_800; // 50 MB
+            });
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddRazorPages();
